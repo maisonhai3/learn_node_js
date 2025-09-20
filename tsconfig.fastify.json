@@ -1,0 +1,9 @@
+{
+  "extends": "./tsconfig.json",
+  "compilerOptions": {
+    "outDir": "dist-fastify",
+    "rootDir": "src-fastify"
+  },
+  "include": ["src-fastify"],
+  "exclude": ["node_modules", "dist", "dist-fastify", "src"]
+}
