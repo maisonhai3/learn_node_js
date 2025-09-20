@@ -5,8 +5,11 @@
   "main": "dist/app.js",
   "scripts": {
     "dev": "ts-node-dev --respawn --transpile-only src/app.ts",
+    "dev:fastify": "ts-node-dev --respawn --transpile-only src-fastify/app.ts",
     "build": "tsc",
+    "build:fastify": "tsc --project tsconfig.fastify.json",
     "start": "node dist/app.js",
+    "start:fastify": "node dist-fastify/app.js",
     "db:migrate": "npx prisma migrate dev",
     "db:generate": "npx prisma generate",
     "db:push": "npx prisma db push",
@@ -17,14 +20,28 @@
     "docker:down": "docker-compose down",
     "docker:dev": "docker-compose --profile dev up -d",
     "docker:logs": "docker-compose logs -f app",
+    "docker:perf": "docker-compose --profile perf up -d",
+    "perf:quick": "./perf-test.sh quick",
+    "perf:full": "./perf-test.sh full",
+    "perf:compare": "./perf-test.sh compare",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
-  "keywords": ["nodejs", "express", "typescript", "prisma", "postgresql", "rest-api"],
+  "keywords": [
+    "nodejs",
+    "express",
+    "typescript",
+    "prisma",
+    "postgresql",
+    "rest-api"
+  ],
   "author": "",
   "license": "ISC",
   "dependencies": {
+    "@fastify/cors": "^11.1.0",
     "@prisma/client": "^6.16.2",
     "express": "^5.1.0",
+    "fastify": "^5.6.0",
+    "pino-pretty": "^13.1.1",
     "prisma": "^6.16.2"
   },
   "devDependencies": {
