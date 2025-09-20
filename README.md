@@ -26,6 +26,27 @@ curl http://localhost:3000/boards
 - ✅ Boards CRUD: http://localhost:3000/boards
 - ✅ Tasks CRUD: http://localhost:3000/boards/:id/tasks
 
+### 🏆 Performance Testing: Express.js vs Fastify
+🎯 **Performance Winner: Express.js** (11.3% faster under load)
+
+| Test Scenario | Express.js | Fastify | Winner |
+|---------------|------------|---------|---------|
+| Baseline (10 conn) | 835 req/s | 765 req/s | 🏆 Express |
+| High Load (100 conn) | 1,043 req/s | 937 req/s | 🏆 Express |
+| Avg Latency | 11.47ms | 12.55ms | 🏆 Express |
+
+**🚀 Quick Performance Test:**
+```bash
+# Start both servers
+npm run docker:perf
+
+# Run quick comparison
+./perf-test.sh quick
+
+# Full performance suite
+./perf-test.sh full
+```
+
 ### 🤖 Auto Database Migration
 Database schema được setup tự động khi container khởi động:
 - **Lần đầu**: Tự động tạo migration từ schema.prisma
