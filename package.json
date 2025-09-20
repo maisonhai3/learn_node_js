@@ -1,8 +1,8 @@
 {
   "name": "learn_node_js",
   "version": "1.0.0",
-  "description": "",
-  "main": "index.js",
+  "description": "Mini-Trello API built with Node.js, Express, TypeScript, and Prisma",
+  "main": "dist/app.js",
   "scripts": {
     "dev": "ts-node-dev --respawn --transpile-only src/app.ts",
     "build": "tsc",
@@ -10,9 +10,16 @@
     "db:migrate": "npx prisma migrate dev",
     "db:generate": "npx prisma generate",
     "db:push": "npx prisma db push",
+    "db:deploy": "npx prisma migrate deploy",
+    "db:studio": "npx prisma studio",
+    "docker:build": "docker-compose build",
+    "docker:up": "docker-compose up -d",
+    "docker:down": "docker-compose down",
+    "docker:dev": "docker-compose --profile dev up -d",
+    "docker:logs": "docker-compose logs -f app",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
-  "keywords": [],
+  "keywords": ["nodejs", "express", "typescript", "prisma", "postgresql", "rest-api"],
   "author": "",
   "license": "ISC",
   "dependencies": {

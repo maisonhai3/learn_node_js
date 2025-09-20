@@ -32,6 +32,31 @@ app.get('/', (req: Request, res: Response) => {
   });
 });
 
+// Health endpoint for Docker
+app.get('/health', (req: Request, res: Response) => {
+  res.status(200).json({
+    status: 'OK',
+    message: 'Mini-Trello API is healthy',
+    timestamp: new Date().toISOString()
+  });
+});
+
+// Database test endpoint
+app.get('/db-test', async (req: Request, res: Response) => {
+  try {
+    await prisma.$connect();
+    res.json({
+      status: 'Database connected successfully',
+      timestamp: new Date().toISOString()
+    });
+  } catch (error) {
+    res.status(500).json({
+      status: 'Database connection failed',
+      error: error instanceof Error ? error.message : 'Unknown error'
+    });
+  }
+});
+
 // Routes
 app.use('/boards', boardRoutes);
 app.use('/tasks', taskRoutes);

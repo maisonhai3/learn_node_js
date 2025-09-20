@@ -1,0 +1,85 @@
+version: '3.8'
+
+services:
+  # PostgreSQL Database
+  postgres:
+    image: postgres:15-alpine
+    container_name: minitrello-db
+    restart: unless-stopped
+    environment:
+      POSTGRES_USER: minitrello
+      POSTGRES_PASSWORD: password123
+      POSTGRES_DB: minitrello
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U minitrello -d minitrello"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  # Node.js Application
+  app:
+    build:
+      context: .
+      dockerfile: Dockerfile
+      target: production
+    container_name: minitrello-app
+    restart: unless-stopped
+    environment:
+      DATABASE_URL: "postgresql://minitrello:password123@postgres:5432/minitrello"
+      NODE_ENV: production
+      PORT: 3000
+    ports:
+      - "3000:3000"
+    depends_on:
+      postgres:
+        condition: service_healthy
+    volumes:
+      # Mount for development (optional)
+      - ./prisma:/app/prisma
+    command: >
+      sh -c "
+        npx prisma migrate deploy &&
+        npx prisma generate &&
+        node dist/app.js
+      "
+
+  # Development service (optional)
+  app-dev:
+    build:
+      context: .
+      dockerfile: Dockerfile
+      target: builder
+    container_name: minitrello-dev
+    restart: unless-stopped
+    environment:
+      DATABASE_URL: "postgresql://minitrello:password123@postgres:5432/minitrello"
+      NODE_ENV: development
+      PORT: 3000
+    ports:
+      - "3001:3000"
+    depends_on:
+      postgres:
+        condition: service_healthy
+    volumes:
+      - .:/app
+      - /app/node_modules
+    command: >
+      sh -c "
+        npx prisma migrate deploy &&
+        npx prisma generate &&
+        npm run dev
+      "
+    profiles:
+      - dev
+
+volumes:
+  postgres_data:
+    driver: local
+
+networks:
+  default:
+    name: minitrello-network
