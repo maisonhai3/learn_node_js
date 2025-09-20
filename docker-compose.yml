@@ -18,13 +18,13 @@ services:
       timeout: 5s
       retries: 5
 
-  # Node.js Application
-  app:
+  # Node.js Application (Express)
+  app-express:
     build:
       context: .
       dockerfile: Dockerfile
       target: production
-    container_name: minitrello-app
+    container_name: minitrello-express
     restart: unless-stopped
     environment:
       DATABASE_URL: "postgresql://minitrello:password123@postgres:5432/minitrello"
@@ -39,6 +39,29 @@ services:
       # Mount for development (optional)
       - ./prisma:/app/prisma
     # Script sẽ tự động handle migration
+
+  # Node.js Application (Fastify)
+  app-fastify:
+    build:
+      context: .
+      dockerfile: Dockerfile.fastify
+      target: production
+    container_name: minitrello-fastify
+    restart: unless-stopped
+    environment:
+      DATABASE_URL: "postgresql://minitrello:password123@postgres:5432/minitrello"
+      NODE_ENV: production
+      FASTIFY_PORT: 4000
+    ports:
+      - "4000:4000"
+    depends_on:
+      postgres:
+        condition: service_healthy
+    volumes:
+      # Mount for development (optional)
+      - ./prisma:/app/prisma
+    profiles:
+      - perf
 
   # Development service (optional)
   app-dev:
