@@ -1,0 +1,108 @@
+config:
+  target: 'http://localhost:4000'
+  phases:
+    # Warm up phase
+    - duration: 10
+      arrivalRate: 10
+      name: "Warm up"
+    
+    # Ramp up phase  
+    - duration: 30
+      arrivalRate: 10
+      rampTo: 100
+      name: "Ramp up load"
+    
+    # Sustained load phase
+    - duration: 60
+      arrivalRate: 100
+      name: "Sustained load"
+    
+    # Spike test
+    - duration: 10
+      arrivalRate: 200
+      name: "Spike test"
+
+  payload:
+    path: './test-data.csv'
+    fields:
+      - 'boardName'
+      - 'taskTitle'
+    delimiter: ','
+
+  processor: './functions.js'
+
+scenarios:
+  # Scenario 1: Read-heavy workload (80% reads, 20% writes)
+  - name: "Read Heavy Workload"
+    weight: 60
+    flow:
+      - get:
+          url: "/"
+      - get:
+          url: "/health"
+      - get:
+          url: "/boards"
+      - think: 1
+      - get:
+          url: "/boards/{{ $randomInt(1, 10) }}"
+          capture:
+            - json: "$.data.id"
+              as: "boardId"
+        ifTrue: 'boardId'
+
+  # Scenario 2: Write-heavy workload
+  - name: "Write Heavy Workload"  
+    weight: 40
+    flow:
+      # Create board
+      - post:
+          url: "/boards"
+          json:
+            name: "Performance Test Board {{ $randomString() }}"
+          capture:
+            - json: "$.data.id"
+              as: "newBoardId"
+      
+      # Create task in the new board
+      - post:
+          url: "/boards/{{ newBoardId }}/tasks"
+          json:
+            title: "Performance Test Task {{ $randomString() }}"
+            description: "Generated during performance testing"
+            status: "{{ $randomItem(['Todo', 'In Progress', 'Done']) }}"
+          capture:
+            - json: "$.data.id"
+              as: "newTaskId"
+        ifTrue: 'newBoardId'
+      
+      # Update the task
+      - put:
+          url: "/tasks/{{ newTaskId }}"
+          json:
+            status: "{{ $randomItem(['Todo', 'In Progress', 'Done']) }}"
+        ifTrue: 'newTaskId'
+      
+      - think: 2
+
+  # Scenario 3: Mixed workload
+  - name: "Mixed Workload"
+    weight: 30
+    flow:
+      - loop:
+          - get:
+              url: "/boards"
+          - think: 0.5
+          - post:
+              url: "/boards"
+              json:
+                name: "Mixed Test {{ $randomString() }}"
+              capture:
+                - json: "$.data.id"
+                  as: "boardId"
+          - post:
+              url: "/boards/{{ boardId }}/tasks"
+              json:
+                title: "Task {{ $randomInt(1, 1000) }}"
+                status: "Todo"
+            ifTrue: 'boardId'
+        count: 3
