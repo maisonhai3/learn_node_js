@@ -1,0 +1,31 @@
+// Prisma schema for Mini-Trello
+// Board: id, name, createdAt, updatedAt
+// Task: id, title, description, status, boardId, createdAt, updatedAt
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model Board {
+  id        Int     @id @default(autoincrement())
+  name      String
+  tasks     Task[]
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+model Task {
+  id          Int      @id @default(autoincrement())
+  title       String
+  description String?
+  status      String   // Todo, In Progress, Done
+  board       Board    @relation(fields: [boardId], references: [id])
+  boardId     Int
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+}
