@@ -38,12 +38,7 @@ services:
     volumes:
       # Mount for development (optional)
       - ./prisma:/app/prisma
-    command: >
-      sh -c "
-        npx prisma migrate deploy &&
-        npx prisma generate &&
-        node dist/app.js
-      "
+    # Script sẽ tự động handle migration
 
   # Development service (optional)
   app-dev:
